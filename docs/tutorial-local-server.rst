@@ -81,8 +81,8 @@ Create a configuration file ``server.ini`` with the following content:
     kinto.signer.main-workspace.reviewers_group = {collection_id}-reviewers
     kinto.signer.autograph.server_url = http://autograph-server:8000
     # Use credentials from https://github.com/mozilla-services/autograph/blob/2bc1af/autograph.yaml#L348-349
-    kinto.signer.autograph.hawk_id = normandev
-    kinto.signer.autograph.hawk_secret = 3dhoaupudifjjvm7xznd9bn73159xn3xwr77b61kzdjwzzsjts
+    kinto.signer.autograph.hawk_id = remotesettingsdev
+    kinto.signer.autograph.hawk_secret = XXXXXXXXXX
 
     [uwsgi]
     wsgi-file = app.wsgi
@@ -185,6 +185,13 @@ First, run the Autograph container in a separate terminal:
 
     docker run --name autograph-server mozilla/autograph
 
+In order to have ``x5u`` chains available to Firefox, let's get them out of the container:
+
+.. code-block:: bash
+
+    mkdir -p /tmp/autograph/chains/remotesettingsdev/
+    docker cp autograph-server:/tmp/autograph/chains/remotesettingsdev/remote-settings.content-signature.mozilla.org-20190421.chain /tmp/autograph/chains/remotesettingsdev/
+
 And run the remote settings server with a link to ``autograph-server`` container:
 
 .. code-block:: bash
@@ -245,11 +252,7 @@ Prepare the client
 The following preferences must be changed to the following values in ``about:config``:
 
 * ``services.settings.server`` : ``http://localhost:8888/v1``
-* ``services.settings.verify_signature`` : ``false``
-
-.. note::
-
-    We now sign the data locally, but with a custom signer so we still have to disable signature verification.
+* ``security.content.signature.root_hash`` : ``5E:36:F2:14:DE:82:3F:8B:29:96:89:23:5F:03:41:AC:AF:A0:75:AF:82:CB:4C:D4:30:7C:3D:B3:43:39:2A:FE``
 
 .. seealso::
 
